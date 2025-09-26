@@ -8,9 +8,11 @@ A take home assignment to demonstrate technical skills for the Software Engineer
 
 
 ## Technology Stack
-- **Language:** Python, SQLite
-- **Software**: VSCode
-- **AI**: ChatGPT (GPT-5), 
+- **FastAPI** - Web framework
+- **SQLAlchemy** - Database interactions
+- **JWT** - Authentication tokens
+- **Python** - Language of code
+- **ChatGPT** - Recepient of prompting
 
 
 ## Environment Setup
@@ -38,3 +40,23 @@ pip install -r requirements.txt
 ```bash
 pip install fastapi uvicorn sqlalchemy pydantic pytest httpx passlib python-jose python-dotenv
 ```
+
+## API Documentation
+
+### Authentication
+- `POST /auth/register` – Register a new user.  
+- `POST /auth/login` – Authenticate and receive an access token.  
+
+### Accounts
+- `POST /accounts` – Create a new account for the authenticated user.  
+- `GET /accounts` – Retrieve all accounts belonging to the authenticated user.  
+
+### Transactions
+- `POST /transactions/deposit` – Deposit funds into an account.  
+- `POST /transactions/withdraw` – Withdraw funds from an account.  
+- `POST /transactions/transfer` – Transfer funds between accounts.  
+
+## Security Considerations
+
+- All sensitive keys and database credentials are stored in a `.env` file (excluded from version control via `.gitignore`).  
+- JWT is used for secure user authentication and session management.
