@@ -1,8 +1,10 @@
-'''
+"""
 Pytest unit test functions for the accounts.py logic.
-'''
+Focuses on creating accounts, deposits, withdrawals, transfers.
+"""
 
 # Imports
+import os
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -17,7 +19,7 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Dependency override for tests
+# Override database dependency
 def override_get_db():
     db = TestingSessionLocal()
     try:
@@ -28,34 +30,41 @@ def override_get_db():
 app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
+# Use a fixed secret key for tests
+TEST_SECRET_KEY = "testsecret"
+os.environ["JWT_SECRET_KEY"] = TEST_SECRET_KEY
+
 # Fixtures
 @pytest.fixture(scope="function", autouse=True)
 def setup_db():
+    """Create and drop tables for each test function."""
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
 
+
 @pytest.fixture
 def test_user():
+    """Create a test user in the database."""
     db = TestingSessionLocal()
     user = User(email="test@example.com", hashed_password="fakehashed")
     db.add(user)
     db.commit()
     db.refresh(user)
+    user_id = user.id
     db.close()
+    user.id = user_id  # keep id accessible
     return user
+
 
 @pytest.fixture
 def auth_header(test_user):
-    # Issue a fake JWT with subject = email
-    SECRET_KEY = "testsecret"
-    ALGORITHM = "HS256"
-    token = jwt.encode({"sub": test_user.email}, SECRET_KEY, algorithm=ALGORITHM)
+    """Create an Authorization header with a test JWT token."""
+    token = jwt.encode({"sub": test_user.email}, TEST_SECRET_KEY, algorithm="HS256")
     return {"Authorization": f"Bearer {token}"}
 
 
 # Tests
-
 def test_create_account(test_user, auth_header):
     response = client.post(
         "/accounts/",
@@ -75,10 +84,11 @@ def test_deposit_success(test_user, auth_header):
     db.add(account)
     db.commit()
     db.refresh(account)
+    account_id = account.id
     db.close()
 
     response = client.post(
-        f"/accounts/{account.id}/deposit?amount=50",
+        f"/accounts/{account_id}/deposit?amount=50",
         headers=auth_header
     )
     assert response.status_code == 200
@@ -92,10 +102,11 @@ def test_withdraw_insufficient_balance(test_user, auth_header):
     db.add(account)
     db.commit()
     db.refresh(account)
+    account_id = account.id
     db.close()
 
     response = client.post(
-        f"/accounts/{account.id}/withdraw?amount=50",
+        f"/accounts/{account_id}/withdraw?amount=50",
         headers=auth_header
     )
     assert response.status_code == 400
@@ -110,14 +121,15 @@ def test_transfer_success(test_user, auth_header):
     db.commit()
     db.refresh(acc1)
     db.refresh(acc2)
+    acc1_id = acc1.id
+    acc2_id = acc2.id
     db.close()
 
     response = client.post(
-        f"/accounts/{acc1.id}/transfer/{acc2.id}?amount=40",
+        f"/accounts/{acc1_id}/transfer/{acc2_id}?amount=40",
         headers=auth_header
     )
     assert response.status_code == 200
     data = response.json()
     assert data["from_account_balance"] == 60.0
     assert data["to_account_balance"] == 90.0
-
