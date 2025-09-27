@@ -8,15 +8,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models import Card, Account, User
-from app.schemas import AccountOut  # optional for reference, can create CardOut if needed
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from dotenv import load_dotenv
 import os
-from pydantic import BaseModel
 from datetime import datetime
 import random
+from app.schemas import CardCreate, CardOut  # pydantic schemas
 
+# Load in secret information from the .env
 load_dotenv()
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = "HS256"
@@ -46,22 +46,6 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-# --- Pydantic Schemas ---
-class CardCreate(BaseModel):
-    account_id: int
-    expiry_date: str  # MM/YY
-    cvv: str
-
-class CardOut(BaseModel):
-    id: int
-    account_id: int
-    card_number: str
-    expiry_date: str
-    is_active: bool
-
-    class Config:
-        orm_mode = True
-
 # --- Routes ---
 @router.post("/cards", response_model=CardOut)
 def create_card(card: CardCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
@@ -69,7 +53,7 @@ def create_card(card: CardCreate, db: Session = Depends(get_db), user: User = De
     if not account:
         raise HTTPException(status_code=404, detail="Account not found or not owned by user")
 
-    # Generate a random card number
+    # Generate a random card number (for demo purposes only – in prod use a secure system)
     card_number = "".join([str(random.randint(0, 9)) for _ in range(16)])
     
     db_card = Card(
