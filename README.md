@@ -38,7 +38,7 @@ pip install -r requirements.txt
 
 **Option 2: Manual Installation**
 ```bash
-pip install fastapi uvicorn sqlalchemy pydantic pytest httpx passlib python-jose python-dotenv
+pip install fastapi uvicorn sqlalchemy pydantic pytest httpx passlib python-jose python-dotenv passlib[bcrypt]
 ```
 
 ## API Documentation
@@ -54,9 +54,4 @@ pip install fastapi uvicorn sqlalchemy pydantic pytest httpx passlib python-jose
 ### Transactions
 - `POST /transactions/deposit` – Deposit funds into an account.  
 - `POST /transactions/withdraw` – Withdraw funds from an account.  
-- `POST /transactions/transfer` – Transfer funds between accounts.  
-
-## Security Considerations
-
-- All sensitive keys and database credentials are stored in a `.env` file (excluded from version control via `.gitignore`).  
-- JWT is used for secure user authentication and session management.
+- `POST /transactions/transfer` – Transfer funds between accounts.
