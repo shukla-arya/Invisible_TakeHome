@@ -8,12 +8,11 @@ A take home assignment to demonstrate technical skills for the Software Engineer
 
 
 ## Technology Stack
-- **FastAPI** - Web framework
-- **SQLAlchemy** - Database interactions
-- **JWT** - Authentication tokens
-- **Python** - Language of code
-- **ChatGPT** - Recepient of prompting
-
+- **FastAPI** - High-performance Python web framework for building APIs
+- **SQLAlchemy** - Secure database interactions
+- **JWT** - Authentication tokens and authorization
+- **Python** - Primary programming language for backend development
+- **ChatGPT** - AI-powered assistant for code and automation
 
 ## Environment Setup
 
