@@ -17,7 +17,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    password_hash = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     accounts = relationship("Account", back_populates="owner")
@@ -40,13 +40,16 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, index=True)
-    account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False)
+    from_account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+    to_account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
     amount = Column(Float, nullable=False)
-    transaction_type = Column(String, nullable=False)  # e.g., "deposit", "withdrawal", "transfer"
+    transaction_type = Column(String, nullable=False)  # "deposit", "withdrawal", "transfer"
     timestamp = Column(DateTime, default=datetime.utcnow)
     description = Column(String, nullable=True)
 
-    account = relationship("Account", back_populates="transactions")
+    # Relationships - Two-way account transfers
+    from_account = relationship("Account", foreign_keys=[from_account_id], backref="outgoing_transactions")
+    to_account = relationship("Account", foreign_keys=[to_account_id], backref="incoming_transactions")
 
 class Card(Base):
     __tablename__ = "cards"
