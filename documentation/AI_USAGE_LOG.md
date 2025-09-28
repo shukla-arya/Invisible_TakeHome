@@ -30,7 +30,7 @@ Captures the prompts and tools used so that reviewers can visualize how AI was l
     - POST /accounts/{from_id}/transfer/{to_id} moves money correctly.
 
 **System Design and Architecutre**
-1. . Extend my accounts.py routes to handle deposits, withdrawals, and transfers. Add error handling for edge cases like insufficient funds, invalid accounts, and negative amounts.
+1. Extend my accounts.py routes to handle deposits, withdrawals, and transfers. Add error handling for edge cases like insufficient funds, invalid accounts, and negative amounts.
 2. Can you show me how to integrate field-level encryption so these values are encrypted before being stored in the database? How can I mask them properly in API responses without breaking compatibility with my other files?
 
 **Documentation**
@@ -69,4 +69,6 @@ Testing business logic (deposit, withdraw, transfer) was tricky, especially with
 4. Ensured compatibility between files with attribute names, validation schema, and security compliance.
 
 5. Code debugging by fixing import errors across modules and resolving mismatches between SQLAlchemy and Pydantic schema structure.
+
+6. Determining the capabilities of the tests including depositing, withdrawing, and transfering.
 
