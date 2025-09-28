@@ -39,22 +39,34 @@ Captures the prompts and tools used so that reviewers can visualize how AI was l
 
 ## Challenges and Solutions
 
-**Problem 1**
+**Problem 1:**
 Needed a clean structure for SQLAlchemy models, Pydantic schemas, and FastAPI routes to interact without type conflicts.
 
-AI Solution: Provided a modular workflow where models.py handles database structure, schemas.py defines request/response validation, and routes/ contains API logic. This reduced coupling and improved maintainability.
+- **AI Solution**: Provided a modular workflow where models.py handles database structure, schemas.py defines request/response validation, and routes/ contains API logic. This reduced coupling and improved maintainability.
 
-**Problem 2**
+**Problem 2:**
 Card numbers, CVVs, and expiry dates were originally stored in plaintext, which is a major security risk.
 
-AI Solution: Suggested implementing field-level encryption with the cryptography.Fernet library. AI provided package suggesion for encrypting data before database insertion and decrypting only when necessary.
+- **AI Solution**: Suggested implementing field-level encryption with the cryptography.Fernet library. AI provided package suggesion for encrypting data before database insertion and decrypting only when necessary.
 
-**Problem 3**
+**Problem 3:**
+Required relational models for Users, Accounts, Transactions, and Cards, including timestamps, constraints, and foreign key relationships. Manually designing was more error-prone.
 
+- **AI Solution**: AI generated SQLAlchemy ORM models with primary/foreign keys, relationships, and timestamp fields (created_at, updated_at). Also provided validation constraints (e.g., non-negative balances).
+
+**Problem 4:**
+Testing business logic (deposit, withdraw, transfer) was tricky, especially with edge cases like overdrafts or invalid amounts.
+
+- **AI Solution**: AI generated pytest unit tests using in-memory SQLite to avoid touching production data. It included coverage for positive deposit updates balance, negative deposit raises error, withdraw over balance raises exception, transfer updates both accounts correctly.
 
 ## Manual Intervention
-1. Establishment of a .env file to securely store sensitive configuration and environment variables.
+1. Establishment of a .env file to securely store sensitive configuration and environment variables, especially the JWT secret key.
 
-2. Generation and storage of a JWT secret key within the .env file for secure authentication handling.
+2. Implementation of a .gitignore file to prevent accidental exposure of confidential information in version control.
 
-3. Implementation of a .gitignore file to prevent accidental exposure of confidential information in version control.
+3. AI generated initial SQLAlchemy models but manual adjustment for constraints was necessary. Renaming and adding fields for consistency with the database design and validating relationships was crucial.
+
+4. Ensured compatibility between files with attribute names, validation schema, and security compliance.
+
+5. Code debugging by fixing import errors across modules and resolving mismatches between SQLAlchemy and Pydantic schema structure.
+
