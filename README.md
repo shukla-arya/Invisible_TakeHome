@@ -1,11 +1,10 @@
 # Invisible_TakeHome
-A take home assignment to demonstrate technical skills for the Software Engineer (Forward Deployed) role at Invisible.
+A take home assignment to demonstrate technical skills for the Software Engineer (Forward Deployed) role at Invisible. This project is a modular banking API that leverages AI tools.
 
 ## Features
 - Develops a REST service that would be used by a bank.
 - Utilizes AI-driven development practices to leverage tools for design and implementation.
 - Contains a usage log for when AI intervention was supplemented.
-
 
 ## Technology Stack
 - **FastAPI** - High-performance Python web framework for building APIs
@@ -37,7 +36,7 @@ pip install -r requirements.txt
 
 **Option 2: Manual Installation**
 ```bash
-pip install fastapi uvicorn sqlalchemy pydantic pytest httpx passlib python-jose python-dotenv passlib[bcrypt]
+pip install fastapi uvicorn sqlalchemy pydantic pytest httpx passlib python-jose python-dotenv passlib[bcrypt] cryptography
 ```
 
 ## API Documentation
