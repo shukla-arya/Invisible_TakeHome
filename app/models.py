@@ -57,9 +57,9 @@ class Card(Base):
     id = Column(Integer, primary_key=True, index=True)
     account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    card_number = Column(String, unique=True, nullable=False)
-    expiry_date = Column(String, nullable=False)  # format: MM/YY
-    cvv = Column(String, nullable=False)
+    card_number = Column(String, unique=True, nullable=False) # encryption = needs str type
+    expiry_date = Column(String, nullable=False)  # format: MM/YY, encrypted
+    cvv = Column(String, nullable=False) # encrypted
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
