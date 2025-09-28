@@ -7,7 +7,6 @@ Outlines features, enhancements, and improvements that may be implemented in fut
 - Enable multi-factor authentication for critical operations such as withdrawals and transfers.
 
 ## Data Protection
-- Encrypt sensitive database fields (CVV, account numbers, etc.)
 - Maintain an audit trail of transactions to debug failed login attempts or suspicious activity.
 
 ## Development and User Experience
