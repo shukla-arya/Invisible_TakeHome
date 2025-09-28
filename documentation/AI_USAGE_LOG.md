@@ -13,7 +13,7 @@ Captures the prompts and tools used so that reviewers can visualize how AI was l
 **Code Development**
 1. Generate SQLAlchemy models for a banking service: Users, Accounts, Transactions, Cards. Include foreign keys, timestamps, and basic constraints.
 
-2. Generate JWT logic, password hashing, and signup/login endpoints in one block.
+2. Generate JWT logic, password hashing, and signup/login endpoints.
 
 3. Write pytest unit tests for my withdraw, deposit, and transfer functions in accounts.py. Make sure to test:
     - Depositing a positive amount updates the balance.
@@ -31,12 +31,26 @@ Captures the prompts and tools used so that reviewers can visualize how AI was l
 
 **System Design and Architecutre**
 1. . Extend my accounts.py routes to handle deposits, withdrawals, and transfers. Add error handling for edge cases like insufficient funds, invalid accounts, and negative amounts.
+2. Can you show me how to integrate field-level encryption so these values are encrypted before being stored in the database? How can I mask them properly in API responses without breaking compatibility with my other files?
 
 **Documentation**
 1. What are the necessary components to include when discussing security considerations for a REST service?
 
 
 ## Challenges and Solutions
+
+**Problem 1**
+Needed a clean structure for SQLAlchemy models, Pydantic schemas, and FastAPI routes to interact without type conflicts.
+
+AI Solution: Provided a modular workflow where models.py handles database structure, schemas.py defines request/response validation, and routes/ contains API logic. This reduced coupling and improved maintainability.
+
+**Problem 2**
+Card numbers, CVVs, and expiry dates were originally stored in plaintext, which is a major security risk.
+
+AI Solution: Suggested implementing field-level encryption with the cryptography.Fernet library. AI provided package suggesion for encrypting data before database insertion and decrypting only when necessary.
+
+**Problem 3**
+
 
 ## Manual Intervention
 1. Establishment of a .env file to securely store sensitive configuration and environment variables.
