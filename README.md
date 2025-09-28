@@ -3,7 +3,7 @@ A take home assignment to demonstrate technical skills for the Software Engineer
 
 ## Features
 - Develops a REST service that would be used by a bank.
-- Utilizes AI-driven development practices to leverage tools for design and implementation.
+- Utilizes AI-driven development practices for design and implementation.
 - Contains a usage log for when AI intervention was supplemented.
 
 ## Technology Stack
