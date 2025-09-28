@@ -13,4 +13,4 @@ Outlines features, enhancements, and improvements that may be implemented in fut
 - Containerize the application with Docker for auditing and reproducibility.
 - Create a simple frontend interface.
 - Test the client application demonstrating the flow.
-
+- Creation of a `utils/` folder for code reorganization, maintainability, and auditing.
