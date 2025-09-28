@@ -25,6 +25,7 @@ class Token(BaseModel):
 
 class AccountCreate(BaseModel):
     account_type: str  # "checking" or "savings"
+    initial_balance: float = 0.0
 
 class AccountOut(BaseModel):
     id: int
@@ -75,7 +76,7 @@ class CardCreate(BaseModel):
             raise ValueError("CVV must be 3 or 4 digits")
         return v
 
-class CardOut(BaseModel):
+class CardOut(BaseModel): # CVV excluded for encryption purposes
     id: int
     account_id: int
     card_number: str
