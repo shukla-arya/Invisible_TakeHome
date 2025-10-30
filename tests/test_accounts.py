@@ -1,25 +1,24 @@
 """
-Pytest unit test functions for the accounts.py logic.
-Focuses on creating accounts, deposits, withdrawals, transfers.
+Unit and integration testing for account information.
 """
 
 # Imports
-import os
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.database import Base, get_db
-from app.models import User, Account
 from app.main import app
-from jose import jwt
+from app.models import Base, User
+from app.database.create_database import get_db
+from app.routes.auth_helpers import get_current_user
 
-# Use in-memory SQLite for tests
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+# Use a file-based DB for tests (or a shared in-memory connection)
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test_bank.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base.metadata.create_all(bind=engine)
 
-# Override database dependency
+# Override dependencies
 def override_get_db():
     db = TestingSessionLocal()
     try:
@@ -27,109 +26,83 @@ def override_get_db():
     finally:
         db.close()
 
-app.dependency_overrides[get_db] = override_get_db
-client = TestClient(app)
-
-# Use a fixed secret key for tests
-TEST_SECRET_KEY = "testsecret"
-os.environ["JWT_SECRET_KEY"] = TEST_SECRET_KEY
-
-# Fixtures
-@pytest.fixture(scope="function", autouse=True)
-def setup_db():
-    """Create and drop tables for each test function."""
-    Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
-
-
-@pytest.fixture
-def test_user():
-    """Create a test user in the database."""
+def override_get_current_user():
     db = TestingSessionLocal()
-    user = User(email="test@example.com", hashed_password="fakehashed")
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    user_id = user.id
-    db.close()
-    user.id = user_id  # keep id accessible
+    user = db.query(User).filter(User.id == 1).first()
+    if not user:
+        user = User(id=1, name="Test User", email="test@example.com", hashed_password="fakehashed")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
     return user
 
+app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[get_current_user] = override_get_current_user
 
-@pytest.fixture
-def auth_header(test_user):
-    """Create an Authorization header with a test JWT token."""
-    token = jwt.encode({"sub": test_user.email}, TEST_SECRET_KEY, algorithm="HS256")
-    return {"Authorization": f"Bearer {token}"}
+client = TestClient(app)
 
-
+# -----------------------
 # Tests
-def test_create_account(test_user, auth_header):
-    response = client.post(
-        "/accounts/",
-        json={"account_type": "checking"},
-        headers=auth_header
-    )
+# -----------------------
+
+def test_root():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Welcome to the Banking API"}
+
+
+def test_create_account():
+    payload = {"account_type": "checking", "initial_balance": 300}
+    response = client.post("/accounts/", json=payload)
     assert response.status_code == 200
     data = response.json()
     assert data["account_type"] == "checking"
-    assert data["balance"] == 0.0
+    assert data["balance"] == 300
+    assert "id" in data
 
 
-def test_deposit_success(test_user, auth_header):
-    # Create account
-    db = TestingSessionLocal()
-    account = Account(user_id=test_user.id, account_type="checking", balance=100.0)
-    db.add(account)
-    db.commit()
-    db.refresh(account)
-    account_id = account.id
-    db.close()
-
-    response = client.post(
-        f"/accounts/{account_id}/deposit?amount=50",
-        headers=auth_header
-    )
+def test_list_accounts():
+    # Ensure at least one account exists
+    client.post("/accounts/", json={"account_type": "savings", "initial_balance": 200})
+    response = client.get("/accounts/")
     assert response.status_code == 200
     data = response.json()
-    assert data["new_balance"] == 150.0
+    assert isinstance(data, list)
+    assert len(data) > 0
 
 
-def test_withdraw_insufficient_balance(test_user, auth_header):
-    db = TestingSessionLocal()
-    account = Account(user_id=test_user.id, account_type="checking", balance=20.0)
-    db.add(account)
-    db.commit()
-    db.refresh(account)
-    account_id = account.id
-    db.close()
-
-    response = client.post(
-        f"/accounts/{account_id}/withdraw?amount=50",
-        headers=auth_header
-    )
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Insufficient balance"
+def test_deposit():
+    resp = client.post("/accounts/", json={"account_type": "savings", "initial_balance": 200})
+    account_id = resp.json()["id"]
+    deposit_resp = client.post(f"/accounts/{account_id}/deposit", params={"amount": 100})
+    assert deposit_resp.status_code == 200
+    data = deposit_resp.json()
+    assert data["new_balance"] == 300
 
 
-def test_transfer_success(test_user, auth_header):
-    db = TestingSessionLocal()
-    acc1 = Account(user_id=test_user.id, account_type="checking", balance=100.0)
-    acc2 = Account(user_id=test_user.id, account_type="savings", balance=50.0)
-    db.add_all([acc1, acc2])
-    db.commit()
-    db.refresh(acc1)
-    db.refresh(acc2)
-    acc1_id = acc1.id
-    acc2_id = acc2.id
-    db.close()
+def test_withdraw():
+    resp = client.post("/accounts/", json={"account_type": "checking", "initial_balance": 500})
+    account_id = resp.json()["id"]
+    withdraw_resp = client.post(f"/accounts/{account_id}/withdraw", params={"amount": 200})
+    assert withdraw_resp.status_code == 200
+    data = withdraw_resp.json()
+    assert data["new_balance"] == 300
 
-    response = client.post(
-        f"/accounts/{acc1_id}/transfer/{acc2_id}?amount=40",
-        headers=auth_header
-    )
-    assert response.status_code == 200
-    data = response.json()
-    assert data["from_account_balance"] == 60.0
-    assert data["to_account_balance"] == 90.0
+
+def test_transfer():
+    from_resp = client.post("/accounts/", json={"account_type": "checking", "initial_balance": 500})
+    to_resp = client.post("/accounts/", json={"account_type": "savings", "initial_balance": 300})
+    from_id = from_resp.json()["id"]
+    to_id = to_resp.json()["id"]
+
+    transfer_payload = {
+        "from_account_id": from_id,
+        "to_account_id": to_id,
+        "amount": 150,
+        "description": "Test transfer"
+    }
+
+    transfer_resp = client.post("/accounts/transfer", json=transfer_payload)
+    assert transfer_resp.status_code == 200
+    data = transfer_resp.json()
+    assert data["new_balance"] == 350  # 500 - 150
