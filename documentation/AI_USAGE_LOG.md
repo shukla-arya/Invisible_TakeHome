@@ -31,7 +31,10 @@ Captures the prompts and tools used so that reviewers can visualize how AI was l
 
 **System Design and Architecutre**
 1. Extend my accounts.py routes to handle deposits, withdrawals, and transfers. Add error handling for edge cases like insufficient funds, invalid accounts, and negative amounts.
+
 2. Can you show me how to integrate field-level encryption so these values are encrypted before being stored in the database? How can I mask them properly in API responses without breaking compatibility with my other files?
+
+3. Create some sample records to verify database upload.
 
 **Documentation**
 1. What are the necessary components to include when discussing security considerations for a REST service?
