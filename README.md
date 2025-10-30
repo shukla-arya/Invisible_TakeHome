@@ -25,6 +25,7 @@ A take home assignment to demonstrate technical skills for the Software Engineer
 ```bash
    python -m venv venv
    venv\Scripts\activate # for Windows
+   source venv/bin/activate # Linux/macOS
 ```
 
 ## Installing Dependencies
@@ -48,6 +49,10 @@ pip install fastapi uvicorn sqlalchemy pydantic pydantic[email] pytest httpx pas
 ### Accounts
 - `POST /accounts` – Create a new account for the authenticated user.  
 - `GET /accounts` – Retrieve all accounts belonging to the authenticated user.  
+
+### Cards
+- `POST /cards/` - Creates a new card linked to an existing account.
+- `GET /cards/` - Lists all cards belonging to the authenticated user.
 
 ### Transactions
 - `POST /transactions/deposit` – Deposit funds into an account.  
