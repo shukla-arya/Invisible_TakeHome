@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 **Option 2: Manual Installation**
 ```bash
-pip install fastapi uvicorn sqlalchemy pydantic pytest httpx passlib python-jose python-dotenv passlib[bcrypt] cryptography
+pip install fastapi uvicorn sqlalchemy pydantic pydantic[email] pytest httpx passlib python-jose python-dotenv passlib[bcrypt] cryptography jwt werkzeug
 ```
 
 ## API Documentation
@@ -64,3 +64,17 @@ python -m app.database.seed_database
 # To confirm the records were inserted
 python -m app.database.verify_database
 ```
+
+## Unit Tests
+
+Navigate to the project root. This command will run the functions in the `tests   folder and validate the behavior of the database.
+```bash
+python -m pytest -v tests
+```
+
+## Run the API
+```bash
+# From the project root
+univorn app main:app --reload
+```
+**Note**: The server runs by default at `http://127.0.0.1:8000`.
