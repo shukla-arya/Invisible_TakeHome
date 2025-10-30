@@ -56,7 +56,11 @@ pip install fastapi uvicorn sqlalchemy pydantic pytest httpx passlib python-jose
 
 ## Database Connection
 
-The entities are uploaded to a SQLite database. To verify that the records are updated, run this command:
+The entities are uploaded to a SQLite database. These commands will populate the database with records of users, account, transaction, and card information.
 ```bash
-python -m app.verify_database
+# To populate the database
+python -m app.database.seed_database
+
+# To confirm the records were inserted
+python -m app.database.verify_database
 ```
