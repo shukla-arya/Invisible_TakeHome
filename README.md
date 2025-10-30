@@ -53,3 +53,10 @@ pip install fastapi uvicorn sqlalchemy pydantic pytest httpx passlib python-jose
 - `POST /transactions/deposit` – Deposit funds into an account.  
 - `POST /transactions/withdraw` – Withdraw funds from an account.  
 - `POST /transactions/transfer` – Transfer funds between accounts.
+
+## Database Connection
+
+The entities are uploaded to a SQLite database. To verify that the records are updated, run this command:
+```bash
+python -m app.verify_database
+```
