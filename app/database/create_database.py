@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 # Set up the database connection
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite://app/database/bank.db")
 
 # Creats an SQLite session
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
