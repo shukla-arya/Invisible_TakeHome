@@ -1,19 +1,28 @@
-'''
-This code sets up the engine, session, and base for the models.
-Configures the database connection using the URL from the .env.
-'''
+"""
+Sets up SQLAlchemy engine, session, and base for models.
+Configures database connection from .env.
+"""
 
-# Imports
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Set up the database connection
+# Load .env
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite://app/database/bank.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app/database/bank.db")
 
-# Creats an SQLite session
+# Engine and session
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Base for models
 Base = declarative_base()
+
+# Dependency for FastAPI
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
