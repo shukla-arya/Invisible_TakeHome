@@ -1,14 +1,14 @@
-'''
+"""
 Generates SQLAlchemy models for a banking service including Users, Accounts, Transactions, Cards.
 Includes foreign keys, timestamps, and basic constraints.
 Maps to tables in SQLite.
-'''
+"""
 
 # Imports
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from .database import Base
+from .database.create_database import Base
 
 # Define the entities and attributes
 class User(Base):
@@ -28,12 +28,11 @@ class Account(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    account_type = Column(String, nullable=False)  # e.g., "checking", "savings"
+    account_type = Column(String, nullable=False)  # "checking", "savings"
     balance = Column(Float, default=0.0)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     owner = relationship("User", back_populates="accounts")
-    transactions = relationship("Transaction", back_populates="account")
     cards = relationship("Card", back_populates="account")
 
 class Transaction(Base):
