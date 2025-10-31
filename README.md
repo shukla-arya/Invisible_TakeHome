@@ -73,7 +73,7 @@ python -m app.database.verify_database
 
 ## Unit Tests
 
-Navigate to the project root. This command will run the functions in the `tests   folder and validate the behavior of the database.
+Go to the project root. This command will run the functions in the `tests   folder and validate the behavior of the database.
 ```bash
 python -m pytest -v tests
 ```
