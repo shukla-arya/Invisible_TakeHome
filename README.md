@@ -78,8 +78,13 @@ python -m pytest -v tests
 ```
 
 ## Run the API
+Start the server.
 ```bash
 # From the project root
 univorn app main:app --reload
 ```
-**Note**: The server runs by default at `http://127.0.0.1:8000`.
+
+Navigate to the docs.
+```bash
+http://127.0.0.1:8000/docs
+```
