@@ -1,67 +1,81 @@
 """
 Populates the database with sample data for testing.
 Creates users, accounts, transactions, and cards.
+Encrypted card numbers, expiry dates, and CVVs for Fernet decryption compatibility.
 """
 
-from app.database.create_database import SessionLocal, engine
-from app.models import Base, User, Account, Transaction, Card
-from datetime import datetime
-import random
+# Imports
+import os
+from dotenv import load_dotenv
+from sqlalchemy.orm import Session
+from app.database.create_database import SessionLocal, Base, engine
+from app.models import User, Account, Card
+from cryptography.fernet import Fernet
+from werkzeug.security import generate_password_hash
 
-# Ensure tables exist
+# Load environment variables
+load_dotenv()
+CARD_ENCRYPTION_KEY = os.getenv("CARD_ENCRYPTION_KEY")
+fernet = Fernet(CARD_ENCRYPTION_KEY.encode())
+
+# Utility functions
+def encrypt(value: str) -> str:
+    return fernet.encrypt(value.encode()).decode()
+
+# Reset DB (drop all tables and recreate)
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
-# Open a session
-db = SessionLocal()
+# Start session
+db: Session = SessionLocal()
 
 try:
-    # Create sample users
-    user1 = User(name="Alice Johnson", email="alice@example.com", hashed_password="hashed_pw_1")
-    user2 = User(name="Bob Smith", email="bob@example.com", hashed_password="hashed_pw_2")
-
-    db.add_all([user1, user2])
+    # --- Users ---
+    alice = User(
+        id=1,
+        name="Alice Johnson",
+        email="alice@example.com",
+        hashed_password=generate_password_hash("alicepassword")
+    )
+    bob = User(
+        id=2,
+        name="Bob Smith",
+        email="bob@example.com",
+        hashed_password=generate_password_hash("bobpassword")
+    )
+    db.add_all([alice, bob])
     db.commit()
-    db.refresh(user1)
-    db.refresh(user2)
 
-    # Create sample accounts
-    acc1 = Account(user_id=user1.id, account_type="checking", balance=2500.0)
-    acc2 = Account(user_id=user1.id, account_type="savings", balance=4000.0)
-    acc3 = Account(user_id=user2.id, account_type="checking", balance=1800.0)
-
+    # --- Accounts ---
+    acc1 = Account(id=1, user_id=1, account_type="checking", balance=2500.0)
+    acc2 = Account(id=2, user_id=1, account_type="savings", balance=4000.0)
+    acc3 = Account(id=3, user_id=2, account_type="checking", balance=1800.0)
     db.add_all([acc1, acc2, acc3])
     db.commit()
-    db.refresh(acc1)
-    db.refresh(acc2)
-    db.refresh(acc3)
 
-    # Create sample transactions
-    t1 = Transaction(from_account_id=None, to_account_id=acc1.id, amount=500.0,
-                     transaction_type="deposit", description="Initial deposit")
-    t2 = Transaction(from_account_id=acc1.id, to_account_id=None, amount=100.0,
-                     transaction_type="withdrawal", description="ATM withdrawal")
-    t3 = Transaction(from_account_id=acc1.id, to_account_id=acc3.id, amount=200.0,
-                     transaction_type="transfer", description="Rent payment")
-
-    db.add_all([t1, t2, t3])
-    db.commit()
-
-    # Create sample cards
-    card1 = Card(account_id=acc1.id, user_id=user1.id,
-                 card_number="1111-2222-3333-4444", expiry_date="12/28",
-                 cvv="123", is_active=True)
-    card2 = Card(account_id=acc3.id, user_id=user2.id,
-                 card_number="5555-6666-7777-8888", expiry_date="06/27",
-                 cvv="456", is_active=True)
-
+    # --- Cards ---
+    card1 = Card(
+        id=1,
+        account_id=1,
+        user_id=1,
+        card_number=encrypt("1111222233334444"),
+        expiry_date=encrypt("12/30"),
+        cvv=encrypt("123"),
+        is_active=True
+    )
+    card2 = Card(
+        id=2,
+        account_id=2,
+        user_id=1,
+        card_number=encrypt("5555666677778888"),
+        expiry_date=encrypt("01/31"),
+        cvv=encrypt("456"),
+        is_active=True
+    )
     db.add_all([card1, card2])
     db.commit()
 
-    print("Sample data inserted successfully!")
-
-except Exception as e:
-    db.rollback()
-    print(f"Error inserting sample data: {e}")
+    print("Database seeded successfully!")
 
 finally:
     db.close()
