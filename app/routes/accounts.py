@@ -76,28 +76,3 @@ def withdraw(
     db.commit()
     db.refresh(account)
     return BalanceUpdateOut(account_id=account.id, new_balance=account.balance)
-
-
-@router.post("/transfer", response_model=BalanceUpdateOut)
-def transfer(
-    transfer_req: TransferRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    # Accounts must exist for transfers to be successful
-    from_account = db.query(Account).filter(Account.id == transfer_req.from_account_id, Account.user_id == current_user.id).first()
-    to_account = db.query(Account).filter(Account.id == transfer_req.to_account_id).first()
-
-    if not from_account or not to_account:
-        raise HTTPException(status_code=404, detail="Account not found")
-    if transfer_req.amount > from_account.balance:
-        raise HTTPException(status_code=400, detail="Insufficient funds")
-
-    from_account.balance -= transfer_req.amount
-    to_account.balance += transfer_req.amount
-
-    db.commit()
-    db.refresh(from_account)
-    db.refresh(to_account)
-
-    return BalanceUpdateOut(account_id=from_account.id, new_balance=from_account.balance)
