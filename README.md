@@ -88,3 +88,4 @@ Navigate to the docs.
 ```bash
 http://127.0.0.1:8000/docs
 ```
+**Note:** Testing for signup, login, accounts, transactions, and cards can be performed directly in the browser. The UI will prompt request for bodies, query parameters, and headers.
