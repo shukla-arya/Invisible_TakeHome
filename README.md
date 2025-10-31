@@ -43,22 +43,22 @@ pip install fastapi uvicorn sqlalchemy pydantic pydantic[email] pytest httpx pas
 ## API Documentation
 
 ### Authentication
-- `POST /auth/register` – Register a new user.  
+- `POST /auth/signup` – Register a new user.  
 - `POST /auth/login` – Authenticate and receive an access token.  
 
 ### Accounts
-- `POST /accounts` – Create a new account for the authenticated user.  
 - `GET /accounts` – Retrieve all accounts belonging to the authenticated user.  
-- `POST /accounts/deposit` – Deposit funds into an account.  
-- `POST /accounts/withdraw` – Withdraw funds from an account. 
+- `POST /accounts/ Create Account` – Create a new account for the authenticated user.  
+- `POST /accounts/{account_id}/deposit` – Deposit funds into an account.  
+- `POST /accounts/{account_id}/withdraw` – Withdraw funds from an account. 
 
 ### Transactions
 - `POST /transactions/transfer` – Transfer funds between accounts.
 
 ### Cards
-- `POST /cards/` - Creates a new card linked to an existing account.
 - `GET /cards/` - Lists all cards belonging to the authenticated user.
-- `PATCH` - Activates and deactivates the card for the account owner.
+- `POST /cards/ Create Card` - Creates a new card linked to an existing account.
+- `PATCH/cards/{card_id}/(de)activate` - Activates or deactivates the card for the account owner.
 
 ## Database Connection
 
